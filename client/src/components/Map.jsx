@@ -22,10 +22,20 @@ function Map({ routes, selectedRoute, startCoords, endCoords }) {
   useEffect(() => {
     if (mapInstanceRef.current) return;
 
-    mapInstanceRef.current = L.map(mapRef.current).setView(
-      [20.5937, 78.9629],
-      5
+   mapInstanceRef.current = L.map(mapRef.current).setView(
+  [20.5937, 78.9629],
+  5
+);
+
+// Current location pe zoom karo
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition((pos) => {
+    mapInstanceRef.current.setView(
+      [pos.coords.latitude, pos.coords.longitude],
+      12
     );
+  });
+}
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",

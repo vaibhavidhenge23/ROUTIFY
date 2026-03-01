@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 
-function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSelectedRoute }) {
+function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSelectedRoute, tripMode }) {
   const [start, setStart] = useState("");
   const [end, setEnd] = useState("");
   const [startSuggestions, setStartSuggestions] = useState([]);
@@ -16,9 +16,22 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
     }
     try {
       const res = await axios.get(
-        `https://photon.komoot.io/api/?q=${query}&limit=5`
+        `https://nominatim.openstreetmap.org/search`,
+        {
+          params: {
+            q: query,
+            format: "json",
+            limit: 8,
+            countrycodes: "in",
+            addressdetails: 1,
+            "accept-language": "en",
+          },
+          headers: {
+            "Accept-Language": "en",
+          },
+        }
       );
-      setSuggestions(res.data.features);
+      setSuggestions(res.data);
     } catch (err) {
       console.error("Search error:", err);
     }
@@ -36,21 +49,20 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
     fetchSuggestions(e.target.value, setEndSuggestions);
   };
 
+  const getDisplayName = (place) => {
+    const parts = place.display_name.split(",");
+    return parts.slice(0, 3).join(",").trim();
+  };
+
   const selectStart = (place) => {
-    setStart(place.properties.name);
-    setSelectedStart([
-      place.geometry.coordinates[0],
-      place.geometry.coordinates[1],
-    ]);
+    setStart(getDisplayName(place));
+    setSelectedStart([parseFloat(place.lon), parseFloat(place.lat)]);
     setStartSuggestions([]);
   };
 
   const selectEnd = (place) => {
-    setEnd(place.properties.name);
-    setSelectedEnd([
-      place.geometry.coordinates[0],
-      place.geometry.coordinates[1],
-    ]);
+    setEnd(getDisplayName(place));
+    setSelectedEnd([parseFloat(place.lon), parseFloat(place.lat)]);
     setEndSuggestions([]);
   };
 
@@ -67,6 +79,7 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
       const res = await axios.post("http://localhost:5000/api/routes", {
         startCoords: selectedStart,
         endCoords: selectedEnd,
+        tripMode: tripMode,
       });
 
       setRoutes(res.data.routes);
@@ -85,7 +98,7 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
       <div className="input-wrapper">
         <input
           type="text"
-          placeholder="📍 Source city..."
+          placeholder="📍 Search source..."
           value={start}
           onChange={handleStartChange}
           className="search-input"
@@ -94,7 +107,13 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
           <ul className="suggestions">
             {startSuggestions.map((place, i) => (
               <li key={i} onClick={() => selectStart(place)}>
-                {place.properties.name}, {place.properties.country}
+                <span className="suggestion-icon">
+                  {place.type === "city" || place.type === "town" ? "🏙️" :
+                   place.type === "restaurant" ? "🍽️" :
+                   place.type === "hospital" ? "🏥" :
+                   place.type === "fuel" ? "⛽" : "📍"}
+                </span>
+                {getDisplayName(place)}
               </li>
             ))}
           </ul>
@@ -104,7 +123,7 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
       <div className="input-wrapper">
         <input
           type="text"
-          placeholder="🏁 Destination city..."
+          placeholder="🏁 Search destination..."
           value={end}
           onChange={handleEndChange}
           className="search-input"
@@ -113,7 +132,13 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
           <ul className="suggestions">
             {endSuggestions.map((place, i) => (
               <li key={i} onClick={() => selectEnd(place)}>
-                {place.properties.name}, {place.properties.country}
+                <span className="suggestion-icon">
+                  {place.type === "city" || place.type === "town" ? "🏙️" :
+                   place.type === "restaurant" ? "🍽️" :
+                   place.type === "hospital" ? "🏥" :
+                   place.type === "fuel" ? "⛽" : "📍"}
+                </span>
+                {getDisplayName(place)}
               </li>
             ))}
           </ul>
