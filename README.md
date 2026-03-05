@@ -10,18 +10,18 @@
 
 Google Maps shows only 2-3 routes based on its own algorithm. You have no real choice. What if you know a shortcut? Want a scenic route? Want to avoid tolls?
 
-**Routify solves this** — it shows you all available routes with full details so you can decide.
+**Routify solves this** - it shows you all available routes with full details so you can decide.
 
 ---
 
 ## ✨ Features
 
-- 🛣️ **Multiple Routes** — See up to 3 different route options on the map
-- 🎨 **Color Coded** — Blue (Fastest), Green (Alternative 1), Orange (Alternative 2)
-- 📏 **Route Details** — Distance and estimated travel time for each route
-- 🔍 **Smart Search** — City search with autocomplete suggestions
-- 🗺️ **Interactive Map** — Click any route card to highlight it on the map
-- 📍 **Start & End Markers** — Visual markers for source and destination
+- 🛣️ **Multiple Routes** - See up to 3 different route options on the map
+- 🎨 **Color Coded** - Blue (Fastest), Green (Alternative 1), Orange (Alternative 2)
+-- 📏 **Route Details** - Distance and estimated travel time for each route
+- 🔍 **Smart Search** - City search with autocomplete suggestions
+- 🗺️ **Interactive Map** - Click any route card to highlight it on the map
+- 📍 **Start & End Markers** - Visual markers for source and destination
 
 ---
 
@@ -117,7 +117,7 @@ http://localhost:5173
 
 ## 🚧 Roadmap
 
-- [ ] **Phase 2** — Long trip mode with POIs on route
+- [ ] **Phase 2** - Long trip mode with POIs on route
   - ⛽ Petrol pumps along route
   - 🏨 Hotels at stop points
   - 🍽️ Restaurants & dhabas
@@ -130,10 +130,10 @@ http://localhost:5173
 
 ## 👩‍💻 Author
 
-**Vaibhavi** — Built as a portfolio project to solve a real problem faced during road trips in India.
+**Vaibhavi** - Built as a portfolio project to solve a real problem faced during road trips in India.
 
 ---
 
 ## 📄 License
 
-MIT License — feel free to use and modify.
+MIT License - feel free to use and modify.
