@@ -1,39 +1,151 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+
 .app {
   display: flex;
   height: 100vh;
   width: 100vw;
-  font-family: Arial, sans-serif;
 }
 
+/* ── SIDEBAR ── */
 .sidebar {
-  width: 350px;
-  min-width: 350px;
+  width: 320px;
+  min-width: 320px;
   height: 100vh;
   overflow-y: auto;
-  background: #f8fafc;
+  background: #ffffff;
   border-right: 1px solid #e2e8f0;
-  padding: 20px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
+  box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+  z-index: 100;
 }
 
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+.sidebar.long-trip {
+  background: #f0f7ff;
+  border-right: 2px solid #1A56DB;
+}
+
+/* ── LOGO ── */
 .logo {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 800;
   color: #1A56DB;
   margin: 0;
+  letter-spacing: -0.5px;
 }
 
-.map-container {
+/* ── MODE TOGGLE ── */
+.mode-toggle {
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.mode-btn {
   flex: 1;
-  height: 100vh;
+  padding: 9px 8px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.25s ease;
 }
 
+.mode-btn.active {
+  background: white;
+  color: #1A56DB;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.15);
+}
+
+.mode-btn:hover:not(.active) {
+  color: #1A56DB;
+  background: rgba(255,255,255,0.6);
+}
+
+/* ── MODE POPUP ── */
+.mode-popup {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1A56DB;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 20px rgba(26,86,219,0.35);
+  z-index: 9999;
+  animation: popupFade 2s ease forwards;
+  white-space: nowrap;
+}
+
+@keyframes popupFade {
+  0%   { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+  20%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  80%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+/* ── VEHICLE TOGGLE ── */
+.vehicle-toggle {
+  display: flex;
+  gap: 6px;
+  background: #f1f5f9;
+  padding: 5px;
+  border-radius: 12px;
+}
+
+.vehicle-btn {
+  flex: 1;
+  padding: 8px 4px;
+  border: none;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #64748b;
+  transition: all 0.2s;
+}
+
+.vehicle-btn.active {
+  background: white;
+  color: #1A56DB;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.vehicle-btn:hover:not(.active) {
+  background: rgba(255,255,255,0.5);
+  color: #1A56DB;
+}
+
+/* ── SEARCH BAR ── */
 .search-bar {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .input-wrapper {
@@ -42,37 +154,44 @@
 
 .search-input {
   width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
+  padding: 11px 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
   outline: none;
   box-sizing: border-box;
-  transition: border 0.2s;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #fafafa;
+  color: #1e293b;
 }
 
 .search-input:focus {
   border-color: #1A56DB;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(26,86,219,0.08);
 }
 
 .suggestions {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 4px);
   left: 0;
   right: 0;
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
   list-style: none;
-  margin: 4px 0 0 0;
+  margin: 0;
   padding: 4px 0;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
   max-height: 200px;
   overflow-y: auto;
 }
 
 .suggestions li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 14px;
   cursor: pointer;
   font-size: 13px;
@@ -85,39 +204,58 @@
   color: #1A56DB;
 }
 
+/* ── FIND ROUTES BUTTON ── */
 .search-btn {
-  padding: 12px;
-  background: #1A56DB;
+  padding: 13px;
+  background: linear-gradient(135deg, #1A56DB, #2563eb);
   color: white;
   border: none;
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: bold;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.2s;
+  letter-spacing: 0.3px;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.3);
 }
 
 .search-btn:hover {
-  background: #1440a8;
+  background: linear-gradient(135deg, #1440a8, #1A56DB);
+  box-shadow: 0 6px 16px rgba(26,86,219,0.4);
+  transform: translateY(-1px);
 }
 
-.route-cards {
+.search-btn:active {
+  transform: translateY(0);
+}
+
+/* ── ROUTE CARDS ── */
+.route-cards-wrapper {
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
+.route-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .route-cards h3 {
-  margin: 0;
-  font-size: 16px;
-  color: #1e293b;
+  margin: 0 0 4px 0;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .route-card {
   background: white;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 14px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 14px;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -129,26 +267,27 @@
 
 .route-card.active {
   background: #f0f4ff;
-  box-shadow: 0 4px 12px rgba(26,86,219,0.15);
+  border-color: #93c5fd;
+  box-shadow: 0 4px 12px rgba(26,86,219,0.12);
 }
 
 .route-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 .route-dot {
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  display: inline-block;
+  flex-shrink: 0;
 }
 
 .route-name {
-  font-weight: bold;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 13px;
   color: #1e293b;
   flex: 1;
 }
@@ -159,26 +298,76 @@
   color: white;
   padding: 2px 8px;
   border-radius: 20px;
+  font-weight: 600;
 }
 
 .route-info {
   display: flex;
-  gap: 16px;
+  gap: 14px;
 }
 
 .info-item {
   display: flex;
   align-items: center;
   gap: 4px;
-  font-size: 13px;
+  font-size: 12px;
   color: #475569;
+  font-weight: 500;
 }
 
+/* ── POI SECTION ── */
+.poi-section {
+  background: #f0f7ff;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1.5px solid #bfdbfe;
+}
+
+.poi-section h3 {
+  font-size: 12px;
+  color: #1e3a5f;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.poi-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.poi-btn {
+  padding: 6px 12px;
+  border: 1.5px solid #bfdbfe;
+  border-radius: 20px;
+  background: white;
+  font-size: 12px;
+  cursor: pointer;
+  color: #475569;
+  transition: all 0.2s;
+  font-weight: 600;
+}
+
+.poi-btn:hover {
+  border-color: #1A56DB;
+  color: #1A56DB;
+}
+
+.poi-btn.active {
+  background: #1A56DB;
+  color: white;
+  border-color: #1A56DB;
+  box-shadow: 0 2px 8px rgba(26,86,219,0.25);
+}
+
+/* ── LOADING & EMPTY STATES ── */
 .loading {
   text-align: center;
   padding: 20px;
   color: #64748b;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .no-routes {
@@ -187,6 +376,88 @@
   color: #94a3b8;
   font-size: 13px;
   background: white;
+  border-radius: 12px;
+  border: 1.5px dashed #e2e8f0;
+}
+
+/* ── MAP ── */
+.map-container {
+  flex: 1;
+  height: 100vh;
+}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  .app {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    height: auto;
+    max-height: 55vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .map-container {
+    flex: 1;
+    height: 45vh;
+  }
+
+  .logo {
+    font-size: 18px;
+  }
+
+  .mode-btn {
+    font-size: 12px;
+    padding: 8px 4px;
+  }
+
+  .vehicle-btn {
+    font-size: 12px;
+    padding: 7px 4px;
+  }
+
+  .search-input {
+    font-size: 14px;
+    padding: 10px 12px;
+  }
+
+  .search-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .route-card {
+    padding: 10px 12px;
+  }
+
+  .suggestions {
+    max-height: 150px;
+  }
+
+  .poi-btn {
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+}
+.location-btn {
+  padding: 10px;
+  background: white;
+  color: #1A56DB;
+  border: 1.5px solid #1A56DB;
   border-radius: 10px;
-  border: 1px dashed #cbd5e1;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.location-btn:hover {
+  background: #f0f4ff;
 }

@@ -1,8 +1,9 @@
+import axios from "axios";
 import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import { useEffect, useRef } from "react";
 import markerIcon from "leaflet/dist/images/marker-icon.png";
 import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import "leaflet/dist/leaflet.css";
+import { useEffect, useRef } from "react";
 
 let DefaultIcon = L.icon({
   iconUrl: markerIcon,
@@ -12,101 +13,101 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const routeColors = ["#3B82F6", "#10B981", "#F97316"];
+const poiIcons = {
+  petrol: "⛽", hotels: "🏨", restaurants: "🍽️", hospitals: "🏥", police: "🚓",
+};
 
-function Map({ routes, selectedRoute, startCoords, endCoords }) {
+function createPoiIcon(emoji) {
+  return L.divIcon({
+    html: `<div style="font-size:22px">${emoji}</div>`,
+    className: "", iconAnchor: [11, 11],
+  });
+}
+
+function Map({ routes, selectedRoute, startCoords, endCoords, activePois, routeCoords, setRouteCoords }) {
   const mapRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const routeLayersRef = useRef([]);
   const markersRef = useRef([]);
+  const poiLayersRef = useRef({});
+  const prevPoisRef = useRef([]);
 
   useEffect(() => {
     if (mapInstanceRef.current) return;
-
-   mapInstanceRef.current = L.map(mapRef.current).setView(
-  [20.5937, 78.9629],
-  5
-);
-
-// Current location pe zoom karo
-if (navigator.geolocation) {
-  navigator.geolocation.getCurrentPosition((pos) => {
-    mapInstanceRef.current.setView(
-      [pos.coords.latitude, pos.coords.longitude],
-      12
-    );
-  });
-}
-
+    mapInstanceRef.current = L.map(mapRef.current).setView([20.5937, 78.9629], 5);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: "© OpenStreetMap contributors",
     }).addTo(mapInstanceRef.current);
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((pos) => {
+        mapInstanceRef.current.setView([pos.coords.latitude, pos.coords.longitude], 12);
+      });
+    }
   }, []);
 
   useEffect(() => {
     if (!mapInstanceRef.current) return;
-
-    routeLayersRef.current.forEach((layer) =>
-      mapInstanceRef.current.removeLayer(layer)
-    );
+    routeLayersRef.current.forEach((l) => mapInstanceRef.current.removeLayer(l));
     routeLayersRef.current = [];
-
-    markersRef.current.forEach((marker) =>
-      mapInstanceRef.current.removeLayer(marker)
-    );
+    markersRef.current.forEach((m) => mapInstanceRef.current.removeLayer(m));
     markersRef.current = [];
-
+    Object.values(poiLayersRef.current).forEach((arr) => arr.forEach((m) => mapInstanceRef.current.removeLayer(m)));
+    poiLayersRef.current = {};
+    prevPoisRef.current = [];
     if (routes.length === 0) return;
-
     routes.forEach((route, index) => {
-      const coords = route.geometry.coordinates.map((coord) => [
-        coord[1],
-        coord[0],
-      ]);
-
-      const polyline = L.polyline(coords, {
+      const coords = route.geometry.coordinates.map((c) => [c[1], c[0]]);
+      const poly = L.polyline(coords, {
         color: routeColors[index],
         weight: selectedRoute === index ? 6 : 3,
         opacity: selectedRoute === index ? 1 : 0.4,
       }).addTo(mapInstanceRef.current);
-
-      routeLayersRef.current.push(polyline);
+      routeLayersRef.current.push(poly);
     });
-
+    if (routes[selectedRoute] && setRouteCoords) setRouteCoords(routes[selectedRoute].geometry.coordinates);
     if (startCoords) {
-      const startMarker = L.marker([startCoords[1], startCoords[0]])
-        .addTo(mapInstanceRef.current)
-        .bindPopup("📍 Start")
-        .openPopup();
-      markersRef.current.push(startMarker);
+      markersRef.current.push(L.marker([startCoords[1], startCoords[0]]).addTo(mapInstanceRef.current).bindPopup("📍 Start").openPopup());
     }
-
     if (endCoords) {
-      const endMarker = L.marker([endCoords[1], endCoords[0]])
-        .addTo(mapInstanceRef.current)
-        .bindPopup("🏁 Destination");
-      markersRef.current.push(endMarker);
+      markersRef.current.push(L.marker([endCoords[1], endCoords[0]]).addTo(mapInstanceRef.current).bindPopup("🏁 Destination"));
     }
-
     if (routeLayersRef.current.length > 0) {
-      const group = L.featureGroup(routeLayersRef.current);
-      mapInstanceRef.current.fitBounds(group.getBounds(), {
-        padding: [50, 50],
-      });
+      mapInstanceRef.current.fitBounds(L.featureGroup(routeLayersRef.current).getBounds(), { padding: [50, 50] });
     }
   }, [routes]);
 
   useEffect(() => {
-    routeLayersRef.current.forEach((layer, index) => {
-      layer.setStyle({
-        weight: selectedRoute === index ? 6 : 3,
-        opacity: selectedRoute === index ? 1 : 0.4,
-      });
+    routeLayersRef.current.forEach((l, i) => {
+      l.setStyle({ weight: selectedRoute === i ? 6 : 3, opacity: selectedRoute === i ? 1 : 0.4 });
     });
+    if (routes[selectedRoute] && setRouteCoords) setRouteCoords(routes[selectedRoute].geometry.coordinates);
   }, [selectedRoute]);
 
-  return (
-    <div ref={mapRef} style={{ height: "100%", width: "100%" }}></div>
-  );
+  useEffect(() => {
+    if (!mapInstanceRef.current || !routeCoords || routeCoords.length === 0) return;
+    const prev = prevPoisRef.current;
+    const curr = activePois || [];
+    prev.filter((p) => !curr.includes(p)).forEach((type) => {
+      (poiLayersRef.current[type] || []).forEach((m) => mapInstanceRef.current.removeLayer(m));
+      delete poiLayersRef.current[type];
+    });
+    curr.filter((p) => !prev.includes(p)).forEach(async (type) => {
+      try {
+        const res = await axios.post("http://localhost:5000/api/pois", { coords: routeCoords, type });
+        const markers = res.data.pois.slice(0, 50).map((poi) =>
+          L.marker([poi.lat, poi.lng], { icon: createPoiIcon(poiIcons[type]) })
+            .addTo(mapInstanceRef.current)
+            .bindPopup(`${poiIcons[type]} ${poi.name}`)
+        );
+        poiLayersRef.current[type] = markers;
+      } catch (err) {
+        console.error("POI error:", err.message);
+      }
+    });
+    prevPoisRef.current = curr;
+  }, [activePois]);
+
+  return <div ref={mapRef} style={{ height: "100%", width: "100%" }}></div>;
 }
 
 export default Map;
