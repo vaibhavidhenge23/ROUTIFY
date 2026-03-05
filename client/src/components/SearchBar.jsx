@@ -89,7 +89,7 @@ function SearchBar({ setRoutes, setStartCoords, setEndCoords, setLoading, setSel
     setSelectedRoute(0);
 
     try {
-      const res = await axios.post("http://localhost:5000/api/routes", {
+      const res = await axios.post("https://routify-app.up.railway.app/api/routes", {
         startCoords: selectedStart,
         endCoords: selectedEnd,
         vehicle: vehicle,

@@ -93,7 +93,7 @@ function Map({ routes, selectedRoute, startCoords, endCoords, activePois, routeC
     });
     curr.filter((p) => !prev.includes(p)).forEach(async (type) => {
       try {
-        const res = await axios.post("http://localhost:5000/api/pois", { coords: routeCoords, type });
+        const res = await axios.post("https://routify-app.up.railway.app/api/pois", { coords: routeCoords, type });
         const markers = res.data.pois.slice(0, 50).map((poi) =>
           L.marker([poi.lat, poi.lng], { icon: createPoiIcon(poiIcons[type]) })
             .addTo(mapInstanceRef.current)
