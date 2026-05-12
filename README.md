@@ -1,6 +1,6 @@
 # 🗺️ Routify
 
-> **Your route, your choice.** Routify shows you all possible routes between two locations — not just one.
+> **Your route, your choice.** Routify shows you all possible routes between two locations -not just one.
 
 ![Routify Demo](https://img.shields.io/badge/Status-Live-brightgreen) ![React](https://img.shields.io/badge/React-18-blue) ![Node.js](https://img.shields.io/badge/Node.js-Express-green) ![Leaflet](https://img.shields.io/badge/Maps-Leaflet.js-orange)
 
